@@ -24,8 +24,8 @@ Structured argument maps where every claim has a clickable source + exact quote,
 
 ```bash
 npx @argdown/cli json <stem>.argdown "$(dirname <stem>)"
-node verify.mjs <stem>.json --verify-only   # verify
-node verify.mjs <stem>.json <stem>_verified.html  # render
+npx vargdown <stem>.json --verify-only   # verify
+npx vargdown <stem>.json <stem>_verified.html  # render
 ```
 
 ## Principles
@@ -66,11 +66,10 @@ model:
 
 <Arg Mapping Research>
 
-(1) [Arg Mapping]: Nesbit & Liu 2025 systematically reviewed 124
-    studies on argument mapping in higher education. #observation
+(1) [Arg Mapping]: Nesbit & Liu 2025 systematically reviewed 124 studies on argument mapping in higher education who tended to find it as helpful. #observation
     [Nesbit & Liu 2025](https://doi.org/10.1111/hequ.70063)
     [evidence](evidence/nesbit_2025_argument_mapping.md#L9-L22)
-    > This systematic review examines research on the use of argument maps or diagrams by postsecondary students. The goals were to identify the themes, research questions, and results of systematically identified studies, and to assess the current prospects for meta-analyses. Relevant databases were searched for qualitative, observational and experimental studies. We coded 124 studies on research design, mapping software, student attitudes, collaborative mapping and thinking skills. There were 102 empirical studies, of which 44% assessed student attitudes toward argument mapping, 40% investigated collaborative argument mapping and 51% examined the quality or structure of student-constructed argument maps. **The causal relationship most frequently investigated was the effect of argument mapping on critical thinking skills.** We present the results from selected studies and consider their significance for learning design.
+    > The purpose of this review was to comprehensively survey research on argument mapping in higher education to understand its scope, methods and findings. We found that researchers deployed many different argument mapping tools, most frequently Rationale (Van Gelder 2007). The studies investigated a wide range of research questions relating to student attitudes and motivation, critical thinking and argumentation skills, writing skills, the argument mapping process, features of argument maps, collaborative argument mapping and acquisition of domain concepts. Many studies examined the effects of argument mapping on critical thinking, and a substantial number of those had a control group. **Although the results from these were mixed, they tended to find that argument mapping is an effective method for developing critical thinking. Meta-analysis is needed to establish the size and reliability of the effect**. In contrast, few studies examined the effect of argument mapping on acquisition of domain-specific factual or conceptual knowledge. These offered, however, some evidence for the efficacy of argument mapping as a study technique (Dwyer et al. 2013). Notably, no studies examined the effects of map construction on conceptual change.
     {reason: "systematic review of 124 studies, but effect sizes vary and meta-analysis still needed", credence: 0.70}
 ----
 (2) [Mapping Helps Thinking]: Argument mapping improves critical
@@ -84,7 +83,7 @@ model:
     LLM-generated references are fully accurate. #observation
     [Safran & Cali 2025](https://doi.org/10.38053/acmj.1746227)
     [evidence](evidence/safran_2025_hallucination.md#L134-L136)
-    > **Only 7.5% of references were fully accurate in the initial generation, while 42.5% were completely fabricated.** The remaining 50% were partially correct. After verification, the proportion of fully accurate references rose to 77.5%. Wilcoxon signed-rank testing confirmed a statistically significant improvement in accuracy across all prompts (W=561.0, p<0.001, r=0.60). The most common errors included invalid DOIs, fabricated article titles, and mismatched metadata.
+    > After initial evaluation, ChatGPT was asked to verify and revise its references. Scores before and after this step were compared descriptively and with Wilcoxon signed-rank tests to assess statistical significance, and effect sizes (r) were calculated to estimate the magnitude of improvement. Results: **Only 7.5% of references were fully accurate in the initial generation, while 42.5% were completely fabricated.** The remaining 50% were partially correct. After verification, the proportion of fully accurate references rose to 77.5%. Wilcoxon signed-rank testing confirmed a statistically significant improvement in accuracy across all prompts (W=561.0, p<0.001, r=0.60). The most common errors included invalid DOIs, fabricated article titles, and mismatched metadata.
     {reason: "small study (40 refs) but consistent with other findings", credence: 0.80}
 ----
 (2) [Forced Sourcing Helps]: Requiring URL + exact quote per claim

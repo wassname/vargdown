@@ -1,7 +1,15 @@
 {
-  "name": "vargdown-skill",
-  "private": true,
+  "name": "vargdown",
+  "version": "0.1.0",
   "type": "module",
+  "bin": {
+    "vargdown": "./verify.mjs"
+  },
+  "files": [
+    "verify.mjs",
+    "compile_asp.mjs",
+    "rules.lp"
+  ],
   "scripts": {
     "test": "node --test test.mjs"
   },

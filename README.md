@@ -1,10 +1,12 @@
-# vargdown - Verified Argument Maps
+# vargdown - Verified Argument Maps Skill
 
 Goal: make it **hard** to the LLM to hallucinate, and **easy** for you to check.
 
 - 1st pass: automatic verification with code
 - 2nd pass: approximate verification by another agent (sub agent)
 - 3rd pass: human, assisted by good UI
+
+To use, just give you LLM the skill: https://raw.githubusercontent.com/wassname/vargdown/refs/heads/main/SKILL.md or install with [openskills](https://github.com/numman-ali/openskills)
 
 ## Example
 
@@ -52,27 +54,17 @@ Output: `[Umbrella]` implied credence ~62% (forecast outweighs the weak con of c
 - **1b. Observations have sources; inferences have reasons.** Each step is one or the other, never mixed. Observations are checked against their source; inferences against reasoning and stated credence.
 - **1c. Reason first, credence second; bottom line is computed, never stated.** State why before how-much. The top-level claim falls out of the math.
 
-## Install as agent skill
+## Quick start (LLM use)
+
+Give [SKILL.md](SKILL.md) to your agent. It tells the LLM how to write argument maps and which commands to run.
 
 ```bash
-# Claude Code / OpenCode
-ln -s /path/to/this/repo ~/.claude/skills/vargdown
+# Claude Code / OpenCode -- symlink so the skill auto-loads
+ln -s /path/to/this/repo/SKILL.md ~/.claude/skills/vargdown.md
 ```
 
-The skill file ([SKILL.md](SKILL.md)) is the single source of truth for how agents write argument maps.
+The agent will write `.argdown` files, then call `npx vargdown` to verify and render them. No local setup needed beyond having node v20+.
 
-
-## Quick start
-
-```bash
-npm install
-npx @argdown/cli json examples/linear_probs.argdown examples
-node verify.mjs examples/linear_probs.json examples/linear_probs_verified.html
-```
-
-Open `examples/linear_probs_verified.html` in a browser to see the rendered argument map: colored cards with computed credences, clickable source links, bold-highlighted quotes, and a bottom-line number.
-
-Requires `node` (v20+).
 
 
 ![example](image.png)
@@ -90,6 +82,9 @@ Key files: `verify.mjs` (orchestrator), `compile_asp.mjs` (JSON→ASP facts), `r
 See `examples/` for working argument maps. See [AGENTS.md](AGENTS.md) for the dev workflow.
 
 ## Dev
+
+See [AGENTS.md](AGENTS.md) for developing the skill itself (tests, sub-agent loop, adding rules).
+
 
 ```bash
 npm test          # unit tests (SKILL.md example + test_patterns/ + examples/)

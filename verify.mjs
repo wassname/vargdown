@@ -6,9 +6,9 @@ Parses argdown JSON export, checks credence consistency, computes conclusions,
 and renders enriched HTML with credence coloring.
 
 Usage:
-    node verify.mjs example.json                          # verify + render
-    node verify.mjs example.json output.html              # specify output path
-    npx @argdown/cli json example.argdown --stdout | node verify.mjs  # pipe
+    npx vargdown example.json                          # verify + render
+    npx vargdown example.json output.html              # specify output path
+    npx @argdown/cli json example.argdown --stdout | npx vargdown  # pipe
 
 Evidence:
     The agent must download sources into evidence/*.md with headers:

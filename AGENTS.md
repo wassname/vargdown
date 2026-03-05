@@ -2,6 +2,18 @@
 
 How to develop and test changes to vargdown (the SKILL.md format, verify.mjs verifier, etc.).
 
+## Setup
+
+```bash
+git clone https://github.com/wassname/vargdown
+cd vargdown
+npm install
+
+# smoke test
+npx @argdown/cli json examples/linear_probs.argdown examples
+npx vargdown examples/linear_probs.json examples/linear_probs_verified.html
+```
+
 ## Cycle
 
 ```
@@ -45,7 +57,7 @@ Spawn a sub-agent that acts as a naive user of the skill. The sub-agent should:
    - `Title: <title>`
    - blank line, then full markdown body (verbatim conversion)
 3. Construct a `.argdown` argument map following the skill, using quotes from the evidence files
-4. Run `npx @argdown/cli json examples/<stem>.argdown examples` then `node verify.mjs examples/<stem>.json --verify-only`
+4. Run `npx @argdown/cli json examples/<stem>.argdown examples` then `npx vargdown examples/<stem>.json --verify-only`
 5. Report back: did the skill guide it correctly? What was confusing? What errors did the verifier catch vs miss?
 
 Example sub-agent prompt:
@@ -58,9 +70,9 @@ You are testing the vargdown skill. Do NOT use HumanAgent MCP or contact the use
 3. Write an argument map to examples/test_output.argdown following SKILL.md.
    The thesis should be: [your thesis here].
 4. Run: npx @argdown/cli json examples/test_output.argdown examples
-5. Run: node verify.mjs examples/test_output.json --verify-only
+5. Run: npx vargdown examples/test_output.json --verify-only
 6. Fix any errors the verifier reports. Re-run until clean.
-7. Run: node verify.mjs examples/test_output.json examples/test_output_verified.html
+7. Run: npx vargdown examples/test_output.json examples/test_output_verified.html
 8. Report back to me:
    - Was the SKILL.md clear enough to follow without guessing?
    - What parts were confusing or ambiguous?
