@@ -514,7 +514,28 @@ function extractParagraphByBlocks(markdown, snippet) {
   return null;
 }
 
-function extractParagraphWithSnippet(markdown, snippet) {
+function closestParagraph(markdown, snippet) {
+  const blocks = String(markdown).split(/\n\s*\n/);
+  const snipTokens = snippetTokens(snippet).map((t) => t.toLowerCase());
+  let best = null;
+  let bestScore = 0;
+  for (const block of blocks) {
+    const norm = normalizeMarkdown(block);
+    if (norm.length < 20) continue;
+    let hits = 0;
+    for (const t of snipTokens) {
+      if (norm.toLowerCase().includes(t)) hits += 1;
+    }
+    const score = hits / snipTokens.length;
+    if (score > bestScore) {
+      bestScore = score;
+      best = norm;
+    }
+  }
+  return best ? `${Math.round(bestScore * 100)}% token overlap: "${best.slice(0, 120)}..."` : null;
+}
+
+function extractParagraphWithSnippet(markdown, snippet, evidenceFile) {
   const tokens = md.parse(markdown, {});
   for (let i = 0; i < tokens.length; i += 1) {
     const token = tokens[i];
@@ -529,7 +550,10 @@ function extractParagraphWithSnippet(markdown, snippet) {
   if (block) {
     return block;
   }
-  throw new Error(`Snippet not found in any paragraph: ${snippet}`);
+  const closest = closestParagraph(markdown, snippet);
+  const fileHint = evidenceFile ? ` in evidence/${evidenceFile}` : "";
+  const closestHint = closest ? `\n  Closest paragraph: ${closest}` : "";
+  throw new Error(`Snippet not found in any paragraph${fileHint}: "${snippet.slice(0, 80)}..."${closestHint}\n  (Quote must be contiguous within a single paragraph of the evidence file.)`);
 }
 
 function observationKey(url, snippet) {
@@ -556,6 +580,8 @@ function parseEvidenceMarkdown(text) {
   const lines = String(text).split("\n");
   let source = null;
   let title = null;
+  let fetchedVia = null;
+  let fetchStatus = null;
   let bodyStart = null;
   for (let i = 0; i < lines.length; i += 1) {
     const line = lines[i].trim();
@@ -567,6 +593,10 @@ function parseEvidenceMarkdown(text) {
       source = line.slice("Source:".length).trim();
     } else if (line.startsWith("Title:")) {
       title = line.slice("Title:".length).trim();
+    } else if (line.startsWith("Fetched-via:")) {
+      fetchedVia = line.slice("Fetched-via:".length).trim();
+    } else if (line.startsWith("Fetch-status:")) {
+      fetchStatus = line.slice("Fetch-status:".length).trim();
     }
   }
   if (!source) {
@@ -576,7 +606,7 @@ function parseEvidenceMarkdown(text) {
     throw new Error(`Evidence markdown missing Title: header for ${source}`);
   }
   const body = lines.slice(bodyStart ?? lines.length).join("\n").trim();
-  return { source, title, body };
+  return { source, title, fetchedVia, fetchStatus, body };
 }
 
 function loadEvidenceIndex(baseDir) {
@@ -592,6 +622,7 @@ function loadEvidenceIndex(baseDir) {
   for (const file of files) {
     const raw = fs.readFileSync(path.join(evidenceDir, file), "utf8");
     const parsed = parseEvidenceMarkdown(raw);
+    parsed.file = file;
     if (index.has(parsed.source)) {
       throw new Error(`Duplicate evidence Source: ${parsed.source}`);
     }
@@ -630,15 +661,25 @@ function collectObservations(data) {
 function ensureEvidence(data, baseDir) {
   const evidenceIndex = loadEvidenceIndex(baseDir);
   const observations = collectObservations(data);
+  const warnings = [];
   for (const obs of observations) {
     const evidence = evidenceIndex.get(obs.linkUrl);
     if (!evidence) {
       throw new Error(`Missing evidence markdown for URL: ${obs.linkUrl}`);
     }
-    const paragraph = extractParagraphWithSnippet(evidence.body, obs.quote);
+    if (!evidence.fetchStatus) {
+      warnings.push(`MISSING HEADER: evidence/${evidence.file} has no Fetch-status header (see SKILL.md Usage step 0)`);
+    } else if (evidence.fetchStatus !== "verbatim") {
+      warnings.push(`NON-VERBATIM: evidence/${evidence.file} has Fetch-status: ${evidence.fetchStatus} -- verification is circular (checks your notes match your argdown, not that the source matches)`);
+    }
+    if (!evidence.fetchedVia) {
+      warnings.push(`MISSING HEADER: evidence/${evidence.file} has no Fetched-via header`);
+    }
+    const paragraph = extractParagraphWithSnippet(evidence.body, obs.quote, evidence.file);
     const key = observationKey(obs.linkUrl, obs.quote);
     paragraphCache.set(key, paragraph);
   }
+  return warnings;
 }
 
 function conclusionRelation(concTitle, relations) {
@@ -975,7 +1016,13 @@ function main() {
 
   const data = JSON.parse(raw);
 
-  ensureEvidence(data, baseDir);
+  const evidenceWarnings = ensureEvidence(data, baseDir);
+  if (evidenceWarnings.length > 0) {
+    console.log(`\n${evidenceWarnings.length} evidence warning(s):\n`);
+    for (const w of evidenceWarnings) {
+      console.log(`  ${w}`);
+    }
+  }
   verify(data).then(([exitCode, statements, relations]) => {
     if (verifyOnly) {
       process.exit(exitCode);

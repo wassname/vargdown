@@ -11,21 +11,67 @@ Structured argument maps where every claim has a clickable source + exact quote,
 
 ## Usage
 
-0. Use URLs for sources. Fetch each URL with markitdown and save a full markdown copy into `evidence/`.
-   - Command pattern: `markitdown {url} > evidence/{slug}.md`
-   - Required headers at top of each evidence file:
-     - `Source: <url>`
-     - `Title: <title>`
-     - blank line, then full markdown body (verbatim conversion)
-1. Write `.argdown` file following the below format (block qoutes, and link to evidence/{slug}.md#{line})
-2. Verify and fix errors until clean with verify.mjs
-3. Have a sub-agent review it: check all links resolve, skeptically review all reasoning, inference values, and credence assignments
+0. Fetch sources into `evidence/`. For each URL, save a verbatim markdown copy:
+   - Web pages: `uvx markitdown {url} > evidence/{slug}.md` (converts HTML to markdown; needs `uv` installed)
+   - GitHub files: `gh api repos/{owner}/{repo}/contents/{path} --jq '.content' | base64 -d > evidence/{slug}.md`
+   - Agent WebFetch tool: paste the fetched markdown into the file manually
+   - If you can't get full text (paywall, rate-limit), save what you have with `Fetch-status: partial`
+   - Example evidence file (`evidence/safran_2025_hallucination.md`):
+     ```
+     Source: https://doi.org/10.38053/acmj.1746227
+     Title: Safran & Cali 2025 - Hallucinated References
+     Fetched-via: uvx markitdown https://doi.org/10.38053/acmj.1746227
+     Fetch-status: verbatim
+
+     Results: Only 7.5% of references were fully accurate in the
+     initial generation, while 42.5% were completely fabricated...
+     ```
+   - If you cannot fetch full text, use `Fetch-status: partial` or `summary` and add `Compliance-note:`:
+     ```
+     Fetch-status: partial
+     Compliance-note: paywall -- only abstract available
+     ```
+     Lower credences on quotes from non-verbatim sources by ~0.1.
+1. Write `.argdown` file following the below format (blockquotes and link to evidence/{slug}.md#{line})
+2. Verify and fix errors until clean
+3. **Mandatory gate**: launch a sub-agent to review. Give it [review_prompt.md](review_prompt.md) and the argdown file. It flags problems; you decide what to fix.
 4. Render to HTML with colored cards and computed credences and ask human to review
 
 ```bash
 npx @argdown/cli json <stem>.argdown "$(dirname <stem>)"
-npx vargdown <stem>.json --verify-only   # verify
-npx vargdown <stem>.json <stem>_verified.html  # render
+npx vargdown <stem>.json --verify-only   # iterate until clean
+npx vargdown <stem>.json <stem>_verified.html  # verify + render
+```
+
+### Capability modes
+
+Not all agents can run subagents or execute node. Use the mode matching your capabilities, but always write the process log.
+
+| Mode | Subagents? | Verifier? | What you do |
+|------|-----------|-----------|-------------|
+| Full | yes | yes | All steps above |
+| No-subagent | no | yes | Skip step 3, note in process log |
+| No-verify | yes or no | no | Skip steps 2-3, note in process log |
+
+### Process log
+
+Record in a separate `<stem>_log.md` alongside the argdown file. This is a factual record of what you did, not a self-certification.
+
+```markdown
+## Process
+- [ ] verifier passes clean
+- [ ] subagent review done
+- [ ] human review done
+
+## Evidence fetch log
+| Source | Method | Status |
+|--------|--------|--------|
+| https://doi.org/... | `uvx markitdown` | verbatim |
+| https://github.com/... | `gh api` | verbatim |
+| https://paywalled.example/... | WebFetch | partial (abstract only) |
+
+## Blockers / caveats
+- Could not fetch full text for paper X (paywall)
 ```
 
 ## Principles
@@ -147,16 +193,38 @@ Output: `[Closes Gap]` implied credence ~93% (+2.6 log-odds; pro outweighs con f
     - Link style:
      - required: source URL link, e.g. `[Paper](https://...)`
      - recommended: local evidence link with line range, e.g. `[evidence](evidence/paper.md#L120-L136)`
-  - The verifier matches quoted text against local `evidence/*.md`, then renders the matched paragraph with the key snippet bolded.
-   - **Evidence file format**: one `evidence/*.md` per URL with headers:
-     - `Source: <url>`
-     - `Title: <title>`
-     - blank line, then full markdown body (verbatim conversion)
+  - The verifier matches quoted text against local `evidence/*.md`, then renders the matched paragraph with the key snippet bolded. The quote must appear within a single paragraph of the evidence file. If your evidence has:
+      ```
+      ...end of paragraph one.
+
+      Start of paragraph two...
+      ```
+      A quote spanning both will fail verification with "Snippet not found in any paragraph." The verifier enforces this -- pick a quote from within one paragraph.
+   - **Evidence file format**: one `evidence/*.md` per URL, with headers as shown in Usage step 0.
+   - If evidence is not verbatim, the verifier only proves your notes match your argdown, not that the source matches your argdown. That's circular. Aim for verbatim source text.
    - **`#assumption`**: needs `{reason, credence}` but NO URL required.
    - **`#mechanism`**, **`#prior`**, **`#crux`**: same as `#assumption` (reason + credence, no URL required). Tag is metadata only.
 4. **ALL conclusions** must be named: `(3) [Name]: text`. Never bare sentences.
 5. **`{reason: "..."}`** is required on every credence and inference value, and comes first.
 6. **`><` does not parse.** Use mutual contraries instead (see Pattern 4 below).
+7. **Correlated arguments must merge.** Log-odds aggregation assumes independence; separate arguments from the same source double-count. Merge correlated evidence into one PCS:
+   ```argdown
+   // WRONG: three arguments from Elhage 2021, each +> [Thesis] -- triples the log-odds
+   <Write Erase> (1) [Elhage finding A] ... +> [Thesis]
+   <Future Info>  (1) [Elhage finding B] ... +> [Thesis]
+   <Mid Layers>   (1) [Elhage finding C] ... +> [Thesis]
+
+   // RIGHT: one argument with joint premises -- multiplied, not summed
+   <Residual Stream Evidence>
+   (1) [Elhage finding A] {credence: 0.85}
+   (2) [Elhage finding B] {credence: 0.75}
+   (3) [Elhage finding C] {credence: 0.70}
+   ----
+   (4) [Scratchpad Hypothesis]: ...
+       {inference: 0.70}
+     +> [Thesis]
+   // 0.85 * 0.75 * 0.70 * 0.70 = 0.31, not three independent log-odds boosts
+   ```
 
 ### Relation Constraints
 
@@ -287,24 +355,19 @@ Weighing pro and con arguments {uses: [1, 2, 3]}
 
 #### Correlated Arguments (Pattern 9)
 
-Tag with `#cluster-X` to flag shared evidence base:
+When multiple arguments share the same evidence base, merge into one PCS with joint premises (Rule 7). Separate arguments would double-count via log-odds.
 
 ```argdown
-<Economic Cost> #cluster-cost
+<Deterrence Costs>
 (1) [GDP Hit]: Sanctions could cost 7% of GDP. #assumption
     {reason: "IMF estimates", credence: 0.70}
-----
-(2) [Econ Deters]: Economic costs deter.
-    {reason: "assumes rational actors", inference: 0.65}
-  +> [Safe Outcome]
-
-<Reputational Cost> #cluster-cost
-(1) [Brand Risk]: Brand damage from unsafe deployment. #assumption
+(2) [Brand Risk]: Brand damage from unsafe deployment. #assumption
     {reason: "some evidence", credence: 0.60}
 ----
-(2) [Rep Deters]: Reputation costs deter.
-    {reason: "weaker than economic", inference: 0.55}
+(3) [Costs Deter]: Combined economic and reputational costs deter.
+    {reason: "assumes rational actors; reputational weaker than economic", inference: 0.60}
   +> [Safe Outcome]
+// 0.70 * 0.60 * 0.60 = 0.25 (joint), not two independent log-odds boosts
 ```
 
 #### Base Rate Prior (Pattern 10)
@@ -361,3 +424,7 @@ To compare two agents' argument maps on the same topic:
 | `[...]` in blockquotes               | Use `(...)` instead -- parser treats `[x]` as statement refs              |
 | Using `><` for contradiction         | Use mutual `- [other]` contraries (see Pattern 4)                         |
 | Independent evidence in one PCS      | Split into separate arguments (1 premise each); log-odds combines them    |
+| Correlated evidence in separate PCSs | Merge into one PCS with multiple premises; log-odds assumes independence  |
+| Quote spans paragraph break          | Pick quote from within one paragraph; verifier matches per-paragraph      |
+| Evidence file is your summary        | Fetch verbatim source text; summaries make verification circular          |
+| No process log                       | Write `<stem>_log.md` with fetch log, blockers, and process steps         |

@@ -65,6 +65,8 @@ ln -s /path/to/this/repo/SKILL.md ~/.claude/skills/vargdown.md
 
 The agent will write `.argdown` files, then call `npx vargdown` to verify and render them. No local setup needed beyond having node v20+.
 
+For editing argdown files: install the [Argdown VSCode extension](https://marketplace.visualstudio.com/items?itemName=christianvoigt.argdown-vscode) for syntax highlighting and live preview. Open the `_verified.html` output in a browser to review.
+
 
 
 ![example](image.png)

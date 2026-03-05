@@ -1,3 +1,8 @@
+Source: https://doi.org/10.1111/hequ.70063
+Title: Argument Mapping in Higher Education: A Systematic Review
+Fetched-via: markitdown https://doi.org/10.1111/hequ.70063
+Fetch-status: verbatim
+
 1 of 19Higher Education Quarterly, 2025; 79:e70063
 https://doi.org/10.1111/hequ.70063
 Higher Education Quarterly

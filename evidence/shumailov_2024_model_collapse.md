@@ -1,5 +1,7 @@
 Source: https://www.nature.com/articles/s41586-024-07566-y
 Title: The Curse of Recursion: Training on Generated Data Makes Models Forget
+Fetched-via: markitdown https://www.nature.com/articles/s41586-024-07566-y
+Fetch-status: verbatim
 
 THE CURSE OF RECURSION:
 TRAINING ON GENERATED DATA MAKES MODELS FORGET

@@ -1,5 +1,7 @@
 Source: https://doi.org/10.38053/acmj.1746227
 Title: Fabricated or accurate? Ethical concerns and citation hallucination in AI-generated scientific writing on musculoskeletal topics
+Fetched-via: markitdown https://doi.org/10.38053/acmj.1746227
+Fetch-status: verbatim
 
 [![DergiPark logo](/zollu/images/dergipark_header.png)](//dergipark.org.tr/en/)
 
