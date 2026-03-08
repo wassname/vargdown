@@ -45,15 +45,6 @@ Output: `[Umbrella]` implied credence ~62% (forecast outweighs the weak con of c
 
 **See [SKILL.md](./SKILL.md) for a realistic example with sources and quotes.
 
-
-## Principles
-
-**Machine-check what you can; make the rest judgeable at the right level.**
-
-- **1a. Proof travels with the claim.** Every observation exports URL + exact quote + frozen local copy (`evidence/`). The judge never searches -- it's right there.
-- **1b. Observations have sources; inferences have reasons.** Each step is one or the other, never mixed. Observations are checked against their source; inferences against reasoning and stated credence.
-- **1c. Reason first, credence second; bottom line is computed, never stated.** State why before how-much. The top-level claim falls out of the math.
-
 ## Quick start (LLM use)
 
 Give [SKILL.md](SKILL.md) to your agent.
