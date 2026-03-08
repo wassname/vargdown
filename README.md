@@ -56,41 +56,11 @@ Output: `[Umbrella]` implied credence ~62% (forecast outweighs the weak con of c
 
 ## Quick start (LLM use)
 
-Give [SKILL.md](SKILL.md) to your agent. It tells the LLM how to write argument maps and which commands to run.
-
-```bash
-# Claude Code / OpenCode -- symlink so the skill auto-loads
-ln -s /path/to/this/repo/SKILL.md ~/.claude/skills/vargdown.md
-```
-
-The agent will write `.argdown` files, then call `npx vargdown` to verify and render them. No local setup needed beyond having node v20+.
-
-For editing argdown files: install the [Argdown VSCode extension](https://marketplace.visualstudio.com/items?itemName=christianvoigt.argdown-vscode) for syntax highlighting and live preview. Open the `_verified.html` output in a browser to review.
-
-
-
-![example](image.png)
-
-## How it works
-
-0. Agent searches for information, saves evidence to `evidence/*.md` (each with `Source:` / `Title:` headers and verbatim body)
-1. Agent writes `.argdown` file following [SKILL.md](SKILL.md) format
-2. `@argdown/cli` parses `.argdown` to JSON
-3. `compile_asp.mjs` compiles the JSON to ASP facts; `clingo-wasm` solves `rules.lp` constraints (ranges, entailment, cycles, isolation); `verify.mjs` also checks quote presence in evidence files, applies log-odds propagation, and renders HTML
-4. Output: standalone HTML with colored cards, source links, and computed credences
-
-Key files: `verify.mjs` (orchestrator), `compile_asp.mjs` (JSON→ASP facts), `rules.lp` (declarative constraints), `SKILL.md` (agent-facing format spec).
-
-See `examples/` for working argument maps. See [AGENTS.md](AGENTS.md) for the dev workflow.
+Give [SKILL.md](SKILL.md) to your agent.
 
 ## Dev
 
 See [AGENTS.md](AGENTS.md) for developing the skill itself (tests, sub-agent loop, adding rules).
-
-
-```bash
-npm test          # unit tests (SKILL.md example + test_patterns/ + examples/)
-```
 
 ## References
 
