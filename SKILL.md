@@ -1,8 +1,8 @@
 ---
 name: vargdown
 description: Verified Argdown maps with credences and source quotes.
-metadata: 
-  - url: https://github.com/wassname/argument-formats
+metadata:
+  url: https://github.com/wassname/argument-formats
 ---
 
 # Verified Argument Maps (v-argdown)
