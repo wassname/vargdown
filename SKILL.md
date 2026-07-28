@@ -1,6 +1,6 @@
 ---
 name: vargdown
-description: Evidence council: save quote-anchored evidence, run independent credence chains, then consolidate.
+description: Evidence council save quote-anchored evidence, run independent credence chains, then consolidate.
 metadata:
   url: https://github.com/wassname/argument-formats
 ---
