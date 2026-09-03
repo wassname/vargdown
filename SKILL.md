@@ -11,7 +11,7 @@ Use this when one perspective is likely to be the limiter.
 
 Default to `varglight` for single-claim verification. Use `vargdown` when the
 question needs multiple plausible arguments, adversarial credence estimates, or
-a consolidated view of where the uncertainty really lives.
+a consolidated view of where the uncertainty actually is.
 
 Do not write Argdown by default. Do not render a graph by default. Do not run
 the old verifier unless the user explicitly asks for it.
@@ -116,5 +116,5 @@ p ~= {range}
 - Preserve disagreement until consolidation.
 - Do not count the same source twice just because two chains cite it.
 - Use credence ranges, not fake-precision points.
-- Keep the artifact readable by humans who will not learn a custom syntax.
+- Keep the output file readable by humans who will not learn a custom syntax.
 - Prefer a short honest chain over a complete-looking map no one will validate.

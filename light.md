@@ -76,4 +76,4 @@ After all sources, an **Epistemic summary** (3–6 short bullets):
 - **What would change your mind**: the `¬H` clause — what evidence under ¬claim would you expect to see that you don't? Absence of evidence is weak evidence of absence, but only if you looked where the evidence would be under H.
 - **Calibrated take**: posterior as a *range* (e.g. `p ≈ 0.05–0.15`), not a fake-precision point. State the cheap way to be wrong.
 
-No per-obs nats. Calibration lives in the final summary, anchored in the quotes above — never on top of them. Be terse: full generous markdown quotes are the unit, epistemic context is the minimum needed to keep the reader oriented.
+No per-obs nats. Calibration goes in the final summary, anchored in the quotes above — never on top of them. Be terse: full generous markdown quotes are the unit, epistemic context is the minimum needed to keep the reader oriented.
